@@ -149,21 +149,21 @@ function injectBadge({ url, container, link }) {
     openPanel(url, badge);
   });
 
-  // Try to insert after the <cite> (the visible URL line), else after the link
+  // Find the URL row (cite's parent) and append badge after the ⋮ menu button
   const cite =
     container.querySelector('cite') ||
     container.querySelector('span[role="text"]') ||
     container.querySelector('.VuuXrf');
 
-  // Use absolute positioning anchored to the full-width result container
-  container.style.position = 'relative';
-  badge.style.cssText += ';position:absolute!important;right:0!important;top:28px!important;';
-
   if (cite) {
-    // Estimate vertical position from cite's offset relative to container
-    const citeTop = cite.getBoundingClientRect().top - container.getBoundingClientRect().top;
-    if (citeTop > 0) badge.style.top = `${citeTop}px`;
-    cite.insertAdjacentElement('afterend', badge);
+    const row = cite.closest('div') || cite.parentElement;
+    if (row) {
+      // Make row flex so badge sits inline after the ⋮ button
+      row.style.cssText += ';display:flex!important;align-items:center!important;gap:6px!important;';
+      row.appendChild(badge);
+    } else {
+      cite.insertAdjacentElement('afterend', badge);
+    }
   } else {
     link.insertAdjacentElement('afterend', badge);
   }
