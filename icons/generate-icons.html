@@ -23,16 +23,14 @@
 <body>
   <h1>[SafeSpace] Icon Generator</h1>
   <p style="font-size:12px;color:#737373;margin-bottom:20px;">
-    Open this file in a browser, then click "Download All Icons" to save the PNGs into your icons/ folder.
+    Open this file in Chrome, click "Download All Icons", then save the 4 PNG files into the icons/ folder.
   </p>
 
   <div class="grid" id="previews"></div>
-
-  <button onclick="downloadAll()">↓ Download All Icons</button>
+  <button onclick="downloadAll()">&#x2193; Download All Icons</button>
 
   <div class="note">
-    After downloading, place all 4 PNG files in the <code>icons/</code> folder.<br>
-    Then load the extension in Chrome: <code>chrome://extensions</code> → Developer mode → Load unpacked.
+    Place all 4 PNG files in the <code>icons/</code> folder, then reload the extension at <code>chrome://extensions</code>.
   </div>
 
   <script>
@@ -44,42 +42,66 @@
       canvas.height = size;
       const ctx = canvas.getContext('2d');
 
-      // Background
-      ctx.fillStyle = '#0a0f0a';
-      ctx.fillRect(0, 0, size, size);
+      const r = size * 0.18; // corner radius
 
-      // Outer border (1px inset)
-      ctx.strokeStyle = '#00b347';
-      ctx.lineWidth = Math.max(1, size * 0.06);
-      const pad = Math.ceil(size * 0.06);
-      ctx.strokeRect(pad, pad, size - pad * 2, size - pad * 2);
+      // ── Solid dark background with rounded corners ──
+      roundRect(ctx, 0, 0, size, size, r);
+      ctx.fillStyle = '#0d1117';
+      ctx.fill();
 
-      // Inner accent line (bottom edge)
+      // ── Green filled shield shape ──
+      const cx = size / 2;
+      const shieldTop    = size * 0.12;
+      const shieldBottom = size * 0.88;
+      const shieldW      = size * 0.62;
+
+      ctx.beginPath();
+      // Top left → top right arc across top
+      ctx.moveTo(cx - shieldW / 2, shieldTop + size * 0.12);
+      ctx.lineTo(cx - shieldW / 2, shieldTop + size * 0.08);
+      ctx.quadraticCurveTo(cx - shieldW / 2, shieldTop, cx - shieldW / 2 + size * 0.06, shieldTop);
+      ctx.lineTo(cx + shieldW / 2 - size * 0.06, shieldTop);
+      ctx.quadraticCurveTo(cx + shieldW / 2, shieldTop, cx + shieldW / 2, shieldTop + size * 0.08);
+      ctx.lineTo(cx + shieldW / 2, shieldTop + size * 0.35);
+      // Taper to point at bottom
+      ctx.quadraticCurveTo(cx + shieldW / 2, shieldBottom - size * 0.1, cx, shieldBottom);
+      ctx.quadraticCurveTo(cx - shieldW / 2, shieldBottom - size * 0.1, cx - shieldW / 2, shieldTop + size * 0.35);
+      ctx.closePath();
       ctx.fillStyle = '#00b347';
-      ctx.fillRect(pad, size - pad * 2.5, size - pad * 2, Math.max(1, size * 0.04));
+      ctx.fill();
 
-      if (size >= 48) {
-        // Draw "SS" text
-        ctx.fillStyle = '#00b347';
-        ctx.font = `bold ${Math.floor(size * 0.38)}px 'Courier New', monospace`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('SS', size / 2, size * 0.46);
-      } else if (size >= 24) {
-        // Draw single "S"
-        ctx.fillStyle = '#00b347';
-        ctx.font = `bold ${Math.floor(size * 0.55)}px 'Courier New', monospace`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('S', size / 2, size * 0.46);
-      } else {
-        // Tiny: just a filled green square inside the border
-        const inner = pad * 2;
-        ctx.fillStyle = '#00b347';
-        ctx.fillRect(inner, inner, size - inner * 2, size - inner * 2);
+      // ── Checkmark inside shield (sizes >= 32) ──
+      if (size >= 32) {
+        const lw = Math.max(1.5, size * 0.07);
+        ctx.strokeStyle = '#0d1117';
+        ctx.lineWidth   = lw;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.beginPath();
+        ctx.moveTo(cx - size * 0.14, cy(size, 0.5));
+        ctx.lineTo(cx - size * 0.02, cy(size, 0.62));
+        ctx.lineTo(cx + size * 0.16, cy(size, 0.38));
+        ctx.stroke();
       }
 
       return canvas;
+    }
+
+    function cy(size, frac) { return size * frac; }
+
+    // Helper: fill rounded rect path
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
     }
 
     // Render previews
@@ -90,7 +112,7 @@
       item.className = 'item';
       item.appendChild(canvas);
       const label = document.createElement('p');
-      label.textContent = `${size}×${size}`;
+      label.textContent = `${size}x${size}`;
       item.appendChild(label);
       grid.appendChild(item);
     });

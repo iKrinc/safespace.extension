@@ -5,7 +5,10 @@
   display: inline-flex !important;
   align-items: center !important;
   gap: 3px !important;
-  margin-left: 10px !important;
+  margin-left: auto !important;
+  float: right !important;
+  position: relative !important;
+  top: 1px !important;
   padding: 1px 5px !important;
   border-radius: 2px !important;
   font-family: 'Courier New', monospace !important;

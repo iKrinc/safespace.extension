@@ -5,6 +5,17 @@
 
 const API_BASE = 'https://safespace.krinc.in';
 
+// ── Focus search input immediately on new tab open ────────────────────────
+// autofocus attribute is unreliable in extension new tab pages
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('search-input');
+  if (input) {
+    input.focus();
+    // Fallback: some Chrome versions need a small delay
+    setTimeout(() => input.focus(), 50);
+  }
+});
+
 // ── Clock ──────────────────────────────────────────────────────────────────
 
 const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
