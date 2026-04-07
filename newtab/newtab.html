@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SafeSpace — AI-powered URL safety checker. Analyze any link before you click it.">
+  <title>SafeSpace</title>
+  <link rel="icon" type="image/png" href="../icons/icon48.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <!-- Home screen -->
+  <div id="home-screen" class="screen">
+    <header class="top-bar">
+      <span class="logo">[safespace@krinc]$</span>
+      <a href="https://safespace.krinc.in" target="_blank" class="logo-link">safespace.krinc.in &#x2197;</a>
+    </header>
+
+    <main class="home-main">
+      <div class="clock-section">
+        <div class="time" id="time">00:00</div>
+        <div class="date" id="date">Monday, January 1</div>
+      </div>
+
+      <div class="search-section">
+        <form id="search-form" autocomplete="off">
+          <div class="input-wrapper">
+            <span class="prompt" aria-hidden="true">&gt;</span>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="enter url or search..."
+              spellcheck="false"
+              autofocus
+              aria-label="Search or enter URL"
+            >
+            <button type="submit" class="submit-btn" aria-label="Go">
+              <span>[&gt;]</span>
+            </button>
+          </div>
+          <div class="input-hint" id="input-hint" aria-live="polite"></div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Analysis / Results screen -->
+  <div id="results-screen" class="screen hidden">
+    <header class="top-bar">
+      <button id="back-btn" class="back-btn" aria-label="Back to search">
+        [&lt;-] back
+      </button>
+      <span class="analyzed-url" id="analyzed-url-display"></span>
+    </header>
+
+    <div class="results-main" id="results-main">
+      <!-- Loading state -->
+      <div id="loading-state" class="loading-state">
+        <div class="loading-bar">
+          <span class="pulse">[&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&gt; ]</span>
+        </div>
+        <div class="loading-text">analyzing url...</div>
+      </div>
+
+      <!-- Results content (hidden until loaded) -->
+      <div id="results-content" class="results-content hidden">
+        <div class="score-row" id="score-row"></div>
+        <div class="explanation" id="explanation"></div>
+
+        <div class="ai-panel hidden" id="ai-panel">
+          <div class="ai-panel-header">
+            <span id="ai-panel-title">[AI] threat intelligence</span>
+            <span class="ai-powered" id="ai-powered"></span>
+          </div>
+          <div class="ai-panel-body" id="ai-panel-body"></div>
+        </div>
+
+        <div class="preview-section" id="preview-section"></div>
+        <div class="actions" id="actions"></div>
+      </div>
+
+      <!-- Error state -->
+      <div id="error-state" class="error-state hidden">
+        <div class="error-icon">[X]</div>
+        <div class="error-text">failed to analyze url</div>
+        <div class="error-sub" id="error-sub"></div>
+        <button id="retry-btn" class="retry-btn">[&lt;-] retry</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="newtab.js"></script>
+</body>
+</html>

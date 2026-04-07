@@ -1,0 +1,76 @@
+/* SafeSpace SERP badge styles — injected into google.com/search */
+
+/* Badge — inline shield next to each result URL */
+.ss-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  margin-left: 10px !important;
+  padding: 1px 5px !important;
+  border-radius: 2px !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  vertical-align: middle !important;
+  border: 1px solid !important;
+  transition: opacity 0.2s, transform 0.15s !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  line-height: 1.4 !important;
+  user-select: none !important;
+}
+
+.ss-badge:hover { opacity: 0.85 !important; transform: scale(1.04) !important; }
+
+/* States */
+.ss-loading {
+  color: #525252 !important;
+  border-color: #262626 !important;
+  background: #0a0f0a !important;
+  animation: ss-pulse 1.2s ease-in-out infinite !important;
+}
+
+.ss-safe {
+  color: #00b35f !important;
+  border-color: #00b35f !important;
+  background: rgba(0, 179, 95, 0.1) !important;
+}
+
+.ss-suspicious {
+  color: #ffb400 !important;
+  border-color: #ffb400 !important;
+  background: rgba(255, 180, 0, 0.1) !important;
+}
+
+.ss-dangerous {
+  color: #ff3333 !important;
+  border-color: #ff3333 !important;
+  background: rgba(255, 51, 51, 0.1) !important;
+}
+
+.ss-error {
+  color: #525252 !important;
+  border-color: #262626 !important;
+  background: #0a0f0a !important;
+}
+
+@keyframes ss-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Panel host — Shadow DOM container, fixed to right side */
+#ss-panel-host {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 380px !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+}
+
+#ss-panel-host.active {
+  pointer-events: all !important;
+}

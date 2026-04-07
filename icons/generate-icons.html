@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>SafeSpace Icon Generator</title>
+  <style>
+    body { background: #0a0f0a; color: #e6e6e6; font-family: 'Courier New', monospace; padding: 32px; }
+    h1 { color: #00b347; font-size: 18px; margin-bottom: 24px; }
+    .grid { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 24px; }
+    .item { text-align: center; }
+    .item canvas { display: block; border: 1px solid #1a2420; }
+    .item p { margin-top: 6px; font-size: 11px; color: #737373; }
+    button {
+      padding: 8px 20px; background: #00b347; color: #0a0f0a;
+      border: none; font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; border-radius: 2px; margin-right: 8px; margin-bottom: 8px;
+    }
+    button:hover { background: #00d455; }
+    .note { font-size: 11px; color: #737373; margin-top: 16px; line-height: 1.6; }
+    .note code { color: #00b347; }
+  </style>
+</head>
+<body>
+  <h1>[SafeSpace] Icon Generator</h1>
+  <p style="font-size:12px;color:#737373;margin-bottom:20px;">
+    Open this file in a browser, then click "Download All Icons" to save the PNGs into your icons/ folder.
+  </p>
+
+  <div class="grid" id="previews"></div>
+
+  <button onclick="downloadAll()">↓ Download All Icons</button>
+
+  <div class="note">
+    After downloading, place all 4 PNG files in the <code>icons/</code> folder.<br>
+    Then load the extension in Chrome: <code>chrome://extensions</code> → Developer mode → Load unpacked.
+  </div>
+
+  <script>
+    const SIZES = [16, 32, 48, 128];
+
+    function drawIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width  = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#0a0f0a';
+      ctx.fillRect(0, 0, size, size);
+
+      // Outer border (1px inset)
+      ctx.strokeStyle = '#00b347';
+      ctx.lineWidth = Math.max(1, size * 0.06);
+      const pad = Math.ceil(size * 0.06);
+      ctx.strokeRect(pad, pad, size - pad * 2, size - pad * 2);
+
+      // Inner accent line (bottom edge)
+      ctx.fillStyle = '#00b347';
+      ctx.fillRect(pad, size - pad * 2.5, size - pad * 2, Math.max(1, size * 0.04));
+
+      if (size >= 48) {
+        // Draw "SS" text
+        ctx.fillStyle = '#00b347';
+        ctx.font = `bold ${Math.floor(size * 0.38)}px 'Courier New', monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('SS', size / 2, size * 0.46);
+      } else if (size >= 24) {
+        // Draw single "S"
+        ctx.fillStyle = '#00b347';
+        ctx.font = `bold ${Math.floor(size * 0.55)}px 'Courier New', monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('S', size / 2, size * 0.46);
+      } else {
+        // Tiny: just a filled green square inside the border
+        const inner = pad * 2;
+        ctx.fillStyle = '#00b347';
+        ctx.fillRect(inner, inner, size - inner * 2, size - inner * 2);
+      }
+
+      return canvas;
+    }
+
+    // Render previews
+    const grid = document.getElementById('previews');
+    SIZES.forEach(size => {
+      const canvas = drawIcon(size);
+      const item = document.createElement('div');
+      item.className = 'item';
+      item.appendChild(canvas);
+      const label = document.createElement('p');
+      label.textContent = `${size}×${size}`;
+      item.appendChild(label);
+      grid.appendChild(item);
+    });
+
+    function downloadAll() {
+      SIZES.forEach(size => {
+        const canvas = drawIcon(size);
+        const a = document.createElement('a');
+        a.download = `icon${size}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      });
+    }
+  </script>
+</body>
+</html>
