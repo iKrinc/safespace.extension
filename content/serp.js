@@ -43,7 +43,7 @@ function setBadgeResult(badge, result) {
   if (!result) { setBadgeError(badge); return; }
   const { safetyLevel, score } = result;
   const map = {
-    SAFE:       { cls: 'ss-safe',       icon: '[✓]' },
+    SAFE:       { cls: 'ss-safe',       icon: '[ok]' },
     SUSPICIOUS: { cls: 'ss-suspicious', icon: '[!]' },
     DANGEROUS:  { cls: 'ss-dangerous',  icon: '[✗]' },
   };
@@ -156,29 +156,14 @@ function injectBadge({ url, container, link }) {
     container.querySelector('.VuuXrf');
 
   if (cite) {
-    // The ⋮ button is a sibling of cite's parent — go up two levels to find it
-    const menuBtn = container.querySelector(
-      '[jsname="R5mgy"], .action-menu button, [data-async-context] button, ' +
-      'button[aria-label="About this result"], button[aria-label="More options"], ' +
-      'button[aria-label="Más opciones"], button[aria-label="À propos de ce résultat"]'
-    );
-
+    // Look for the ⋮ button as a sibling button within cite's immediate parent
+    const citeRow = cite.parentElement;
+    const menuBtn = citeRow?.querySelector('button') ||
+                    citeRow?.parentElement?.querySelector('button:not([type="submit"])');
     if (menuBtn) {
-      // Insert directly after the three-dots button
       menuBtn.insertAdjacentElement('afterend', badge);
     } else {
-      // Fallback: walk up until we find a div that also contains a button (the ⋮ row)
-      let row = cite.parentElement;
-      for (let i = 0; i < 4 && row; i++) {
-        if (row.querySelector('button')) break;
-        row = row.parentElement;
-      }
-      if (row) {
-        row.style.cssText += ';display:flex!important;align-items:center!important;gap:6px!important;';
-        row.appendChild(badge);
-      } else {
-        cite.insertAdjacentElement('afterend', badge);
-      }
+      cite.insertAdjacentElement('afterend', badge);
     }
   } else {
     link.insertAdjacentElement('afterend', badge);
