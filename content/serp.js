@@ -156,7 +156,14 @@ function injectBadge({ url, container, link }) {
     container.querySelector('.VuuXrf');
 
   if (cite) {
-    cite.insertAdjacentElement('afterend', badge);
+    // Make the cite's parent a flex row so margin-left pushes badge to far right
+    const row = cite.parentElement;
+    if (row) {
+      row.style.cssText += ';display:flex!important;align-items:center!important;flex-wrap:nowrap!important;width:100%!important;';
+      row.appendChild(badge);
+    } else {
+      cite.insertAdjacentElement('afterend', badge);
+    }
   } else {
     link.insertAdjacentElement('afterend', badge);
   }
