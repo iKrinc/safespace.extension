@@ -6,14 +6,18 @@
 const API_BASE = 'https://safespace.krinc.in';
 
 // ── Focus search input immediately on new tab open ────────────────────────
-// autofocus attribute is unreliable in extension new tab pages
+// Chrome's address bar steals focus after DOMContentLoaded, so we
+// re-grab it when the window itself receives focus (happens once settled),
+// and also via a few timed fallbacks.
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('search-input');
-  if (input) {
-    input.focus();
-    // Fallback: some Chrome versions need a small delay
-    setTimeout(() => input.focus(), 50);
-  }
+  if (!input) return;
+  input.focus();
+  // Re-focus when window gains focus (fires after Chrome releases the address bar)
+  window.addEventListener('focus', () => input.focus(), { once: true });
+  // Belt-and-suspenders timed fallbacks
+  setTimeout(() => input.focus(), 100);
+  setTimeout(() => input.focus(), 400);
 });
 
 // ── Clock ──────────────────────────────────────────────────────────────────
