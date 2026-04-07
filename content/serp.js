@@ -155,15 +155,15 @@ function injectBadge({ url, container, link }) {
     container.querySelector('span[role="text"]') ||
     container.querySelector('.VuuXrf');
 
+  // Use absolute positioning anchored to the full-width result container
+  container.style.position = 'relative';
+  badge.style.cssText += ';position:absolute!important;right:0!important;top:28px!important;';
+
   if (cite) {
-    // Make the cite's parent a flex row so margin-left pushes badge to far right
-    const row = cite.parentElement;
-    if (row) {
-      row.style.cssText += ';display:flex!important;align-items:center!important;flex-wrap:nowrap!important;width:100%!important;';
-      row.appendChild(badge);
-    } else {
-      cite.insertAdjacentElement('afterend', badge);
-    }
+    // Estimate vertical position from cite's offset relative to container
+    const citeTop = cite.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    if (citeTop > 0) badge.style.top = `${citeTop}px`;
+    cite.insertAdjacentElement('afterend', badge);
   } else {
     link.insertAdjacentElement('afterend', badge);
   }
