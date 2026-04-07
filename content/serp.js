@@ -156,13 +156,29 @@ function injectBadge({ url, container, link }) {
     container.querySelector('.VuuXrf');
 
   if (cite) {
-    const row = cite.closest('div') || cite.parentElement;
-    if (row) {
-      // Make row flex so badge sits inline after the ⋮ button
-      row.style.cssText += ';display:flex!important;align-items:center!important;gap:6px!important;';
-      row.appendChild(badge);
+    // The ⋮ button is a sibling of cite's parent — go up two levels to find it
+    const menuBtn = container.querySelector(
+      '[jsname="R5mgy"], .action-menu button, [data-async-context] button, ' +
+      'button[aria-label="About this result"], button[aria-label="More options"], ' +
+      'button[aria-label="Más opciones"], button[aria-label="À propos de ce résultat"]'
+    );
+
+    if (menuBtn) {
+      // Insert directly after the three-dots button
+      menuBtn.insertAdjacentElement('afterend', badge);
     } else {
-      cite.insertAdjacentElement('afterend', badge);
+      // Fallback: walk up until we find a div that also contains a button (the ⋮ row)
+      let row = cite.parentElement;
+      for (let i = 0; i < 4 && row; i++) {
+        if (row.querySelector('button')) break;
+        row = row.parentElement;
+      }
+      if (row) {
+        row.style.cssText += ';display:flex!important;align-items:center!important;gap:6px!important;';
+        row.appendChild(badge);
+      } else {
+        cite.insertAdjacentElement('afterend', badge);
+      }
     }
   } else {
     link.insertAdjacentElement('afterend', badge);
