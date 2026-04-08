@@ -184,7 +184,7 @@ const PANEL_CSS = `
   .panel {
     position: fixed;
     top: 0; right: 0;
-    width: 380px; height: 100vh;
+    width: 420px; height: 100vh;
     background: #0d1117;
     border-left: 1px solid #1a2420;
     font-family: 'Courier New', monospace;
@@ -253,22 +253,37 @@ const PANEL_CSS = `
   .rec { padding-top: 6px; border-top: 1px solid #0f1a10; font-size: 10px; color: #737373; }
   .rec strong { color: #00b347; font-weight: 500; }
 
+  /* ── Action buttons (above preview) ─── */
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-go { padding: 7px 14px; background: #00b347; color: #0a0f0a; border: none; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 2px; transition: background 0.2s; flex: 1; }
+  .btn-go:hover { background: #00d455; }
+  .btn-go-d { padding: 7px 14px; background: none; border: 1px solid #ff3333; color: #ff3333; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 2px; transition: all 0.2s; flex: 1; }
+  .btn-go-d:hover { background: rgba(255,51,51,0.08); }
+  .btn-full { padding: 7px 12px; background: none; border: 1px solid #1a2420; color: #737373; font-family: inherit; font-size: 10px; cursor: pointer; border-radius: 2px; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.2s; }
+  .btn-full:hover { border-color: #00b347; color: #00b347; }
+
+  /* ── Preview (mobile-device sized) ── */
   .preview-wrap { display: flex; flex-direction: column; }
-  .preview-bar { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; background: #0a0f0a; border: 1px solid #1a2420; border-bottom: none; border-radius: 2px 2px 0 0; font-size: 10px; }
+  .preview-bar { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px; background: #0a0f0a; border: 1px solid #1a2420; border-bottom: none; border-radius: 2px 2px 0 0; font-size: 10px; }
   .pcheck { color: #00b35f; }
   .psandbox { color: #404040; }
-  .preview-box { border: 1px solid #1a2420; border-radius: 0 0 2px 2px; background: #fff; overflow: hidden; }
-  .preview-box iframe { width: 100%; height: 300px; border: none; display: block; background: #fff; }
-  .preview-loading { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #00b347; background: #0a0f0a; border: 1px solid #1a2420; border-radius: 0 0 2px 2px; animation: pulse 1.2s ease-in-out infinite; }
-  .preview-blocked { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #737373; background: #0a0f0a; border: 1px solid #1a2420; border-radius: 2px; }
 
-  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-go { padding: 7px 14px; background: #00b347; color: #0a0f0a; border: none; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 2px; transition: background 0.2s; }
-  .btn-go:hover { background: #00d455; }
-  .btn-go-d { padding: 7px 14px; background: none; border: 1px solid #ff3333; color: #ff3333; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
-  .btn-go-d:hover { background: rgba(255,51,51,0.08); }
-  .btn-full { padding: 7px 12px; background: none; border: 1px solid #1a2420; color: #737373; font-family: inherit; font-size: 10px; cursor: pointer; border-radius: 2px; text-decoration: none; display: inline-block; transition: all 0.2s; }
-  .btn-full:hover { border-color: #00b347; color: #00b347; }
+  /* Loading state — shows while JS renders (5s countdown) */
+  .preview-render-loading {
+    height: 560px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; background: #0a0f0a; border: 1px solid #1a2420; border-radius: 0 0 2px 2px;
+    font-size: 11px; color: #00b347;
+  }
+  .render-prog-track { width: 200px; height: 3px; background: #1a2420; border-radius: 2px; overflow: hidden; }
+  .render-prog-bar { height: 100%; background: #00b347; border-radius: 2px; transition: width 0.5s linear; }
+  .render-status { font-size: 10px; color: #404040; }
+
+  /* Hidden iframe while waiting (JS runs in background) */
+  .preview-hidden-frame { position: absolute; width: 390px; height: 560px; left: -9999px; top: -9999px; }
+
+  .preview-box { border: 1px solid #1a2420; border-radius: 0 0 2px 2px; background: #fff; overflow: hidden; position: relative; }
+  .preview-box iframe { width: 100%; height: 560px; border: none; display: block; background: #fff; }
+  .preview-blocked { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #737373; background: #0a0f0a; border: 1px solid #1a2420; border-radius: 2px; }
 
   .err { padding: 48px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 12px; color: #ff3333; }
 `;
@@ -368,16 +383,25 @@ function renderPanel(result, url) {
     </div>
     <div class="expl expl-${cls}">${escHTML(expl)}</div>
     ${aiHTML}
-    ${canPreview
-      ? `<div class="preview-wrap">
-           <div class="preview-bar"><span><span class="pcheck">[✓]</span> safe preview</span><span class="psandbox">&lt;sandboxed&gt;</span></div>
-           <div class="preview-loading" id="ss-prev-box">[&#x2588;&#x2588;&#x2588;&gt; ] loading...</div>
-         </div>`
-      : `<div class="preview-blocked">[X] preview disabled for dangerous URLs</div>`}
     <div class="actions">
       ${proceedBtn}
       <a class="btn-full" href="https://safespace.krinc.in?url=${encodeURIComponent(url)}" target="_blank">full analysis [&uarr;]</a>
-    </div>`;
+    </div>
+    ${canPreview
+      ? `<div class="preview-wrap">
+           <div class="preview-bar">
+             <span><span class="pcheck">[✓]</span> safe preview &mdash; rendered</span>
+             <span class="psandbox">&lt;sandboxed&gt;</span>
+           </div>
+           <div id="ss-prev-box">
+             <div class="preview-render-loading">
+               <div>[&#x2588;&#x2588;&#x2588;&gt;] rendering page...</div>
+               <div class="render-prog-track"><div class="render-prog-bar" id="ss-prog" style="width:0%"></div></div>
+               <div class="render-status" id="ss-render-status">waiting for scripts to run...</div>
+             </div>
+           </div>
+         </div>`
+      : `<div class="preview-blocked">[X] preview disabled — URL flagged as dangerous</div>`}`;
 
   panelShadow.getElementById('ss-go')?.addEventListener('click', () => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -387,31 +411,97 @@ function renderPanel(result, url) {
   if (canPreview) loadPanelPreview(url);
 }
 
+/**
+ * Intelligent preview: fetch HTML, load it in a hidden off-screen iframe so
+ * all scripts execute and the page fully renders, then after RENDER_WAIT ms
+ * reveal the iframe in the panel. This gives a true "after JS" snapshot.
+ *
+ * WHY HIDDEN FIRST:
+ *   Static HTML from the proxy may be a skeleton — React, Vue, GSAP, lazy
+ *   loaders etc. all need JS to run before the page looks right. By letting
+ *   the iframe live off-screen for ~6s, scripts fire, content populates, and
+ *   then we just move the rendered iframe into view.
+ */
+const RENDER_WAIT = 6000; // ms to let scripts run before revealing
+
 async function loadPanelPreview(url) {
-  const box = panelShadow?.getElementById('ss-prev-box');
-  if (!box) return;
+  const getBox = () => panelShadow?.getElementById('ss-prev-box');
+  if (!getBox()) return;
+
+  // ── 1. Fetch proxied HTML ─────────────────────────────────────────────────
+  let data;
   try {
-    const data = await chrome.runtime.sendMessage({ type: 'PREVIEW', url });
-    if (!panelShadow?.getElementById('ss-prev-box')) return; // panel closed
-    if (data?.success && data.content) {
-      const wrap = document.createElement('div');
-      wrap.className = 'preview-box';
-      const iframe = document.createElement('iframe');
-      iframe.sandbox = 'allow-scripts allow-forms';
-      iframe.referrerPolicy = 'no-referrer';
-      iframe.title = 'Site preview';
-      iframe.srcdoc = data.content;
-      wrap.appendChild(iframe);
-      box.replaceWith(wrap);
-    } else {
-      box.textContent = '[!] preview not available';
-      box.style.animation = 'none';
-      box.style.color = '#737373';
-    }
+    data = await chrome.runtime.sendMessage({ type: 'PREVIEW', url });
   } catch {
-    const b = panelShadow?.getElementById('ss-prev-box');
-    if (b) { b.textContent = '[!] preview failed'; b.style.animation = 'none'; }
+    const b = getBox();
+    if (b) b.innerHTML = '<div class="preview-blocked">[!] preview fetch failed</div>';
+    return;
   }
+
+  if (!getBox()) return; // panel closed while fetching
+
+  if (!data?.success || !data.content) {
+    const b = getBox();
+    if (b) b.innerHTML = '<div class="preview-blocked">[!] preview not available for this site</div>';
+    return;
+  }
+
+  // ── 2. Build hidden off-screen iframe so JS can render ───────────────────
+  const hiddenFrame = document.createElement('iframe');
+  hiddenFrame.className = 'preview-hidden-frame';
+  hiddenFrame.sandbox = 'allow-scripts allow-forms';
+  hiddenFrame.referrerPolicy = 'no-referrer';
+  hiddenFrame.title = 'Site preview';
+  hiddenFrame.srcdoc = data.content;
+  // Attach to shadow root so it starts loading immediately
+  panelShadow.appendChild(hiddenFrame);
+
+  // ── 3. Countdown progress bar ─────────────────────────────────────────────
+  const STEPS = 12;
+  const stepMs = RENDER_WAIT / STEPS;
+  const statuses = [
+    'waiting for scripts to run...',
+    'executing page JavaScript...',
+    'loading dynamic content...',
+    'rendering layout...',
+    'applying styles...',
+    'running animations...',
+    'loading images...',
+    'finalising render...',
+    'almost ready...',
+    'capturing rendered view...',
+  ];
+  let step = 0;
+  const ticker = setInterval(() => {
+    step++;
+    const prog = panelShadow?.getElementById('ss-prog');
+    const status = panelShadow?.getElementById('ss-render-status');
+    if (prog) prog.style.width = `${Math.min(100, (step / STEPS) * 100)}%`;
+    if (status) status.textContent = statuses[Math.min(step, statuses.length - 1)];
+    if (step >= STEPS) clearInterval(ticker);
+  }, stepMs);
+
+  // ── 4. After wait, move iframe into panel ────────────────────────────────
+  await new Promise(r => setTimeout(r, RENDER_WAIT));
+  clearInterval(ticker);
+
+  if (!getBox()) {
+    // Panel was closed — clean up hidden frame
+    hiddenFrame.remove();
+    return;
+  }
+
+  // Reposition the now-rendered iframe into the visible box
+  hiddenFrame.remove(); // detach from shadow root
+  hiddenFrame.className = ''; // clear off-screen positioning
+  hiddenFrame.style.cssText = 'width:100%;height:560px;border:none;display:block;background:#fff;';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'preview-box';
+  wrap.appendChild(hiddenFrame);
+
+  const box = getBox();
+  if (box) box.replaceWith(wrap);
 }
 
 // ── Init + mutation observer ───────────────────────────────────────────────
